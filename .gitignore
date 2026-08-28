@@ -10,6 +10,9 @@ node_modules/
 *.log
 npm-debug.log*
 
+# Local session context
+/SESSION_LOG.md
+
 # Coverage and build output
 coverage/
 dist/
