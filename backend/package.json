@@ -1,10 +1,13 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API REST para la tienda de hardware gamer",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env src/server.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch"
   },
   "keywords": [],
   "author": "",
