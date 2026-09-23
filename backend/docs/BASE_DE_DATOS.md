@@ -1,6 +1,6 @@
-# Modelo de datos
+# Modelo de la base de datos
 
-PostgreSQL es la fuente de persistencia. El backend accede mediante consultas parametrizadas con `pg`; no utiliza ORM.
+PostgreSQL es la fuente de persistencia. El servidor accede mediante consultas parametrizadas con `pg`; no utiliza ORM.
 
 ## Relaciones
 
@@ -72,7 +72,7 @@ erDiagram
   }
 ```
 
-`store_information` es una tabla singleton: solamente permite la fila con `id = 1`.
+`store_information` es una tabla de una sola fila: solamente permite el registro con `id = 1`.
 
 ## Integridad
 
@@ -84,7 +84,7 @@ erDiagram
 - La disponibilidad se limita a `in_stock`, `out_of_stock` o `preorder`.
 - El estado de una consulta se limita a `pending`, `read` o `answered`.
 - Las contraseñas nunca se guardan en texto plano.
-- Los tokens de recuperación se guardan mediante hash SHA-256.
+- Los tokens de recuperación se guardan mediante un resumen criptográfico SHA-256.
 - Cerrar sesión o restablecer la contraseña revoca las sesiones correspondientes.
 
 ## Migraciones
@@ -96,9 +96,9 @@ Las migraciones se ejecutan en orden y se registran en `schema_migrations`:
 3. `003_create_store_and_inquiries.sql`
 4. `004_create_products.sql`
 
-El runner usa un advisory lock de PostgreSQL para evitar ejecuciones concurrentes.
+El ejecutor usa un bloqueo asesor de PostgreSQL para evitar ejecuciones concurrentes.
 
-Para la entrega también se incluye `database/create_database.sql`, un script único de creación que incorpora las cuatro migraciones. Debe ejecutarse sobre una base vacía:
+Para la entrega también se incluye `database/create_database.sql`, un archivo SQL único de creación que incorpora las cuatro migraciones. Debe ejecutarse sobre una base vacía:
 
 ```bash
 psql "$DATABASE_URL" -f database/create_database.sql

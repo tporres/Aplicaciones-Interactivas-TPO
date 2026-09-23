@@ -1,12 +1,12 @@
 # Aplicaciones Interactivas - TPO
 
-Backend REST para una plataforma promocional de hardware gamer, desarrollado como Trabajo Práctico Obligatorio de Aplicaciones Interactivas.
+API REST para una plataforma promocional de componentes para videojuegos, desarrollada como Trabajo Práctico Obligatorio de Aplicaciones Interactivas.
 
-La [consigna del TPO](./TPO%20Segundo%20Cuatrimestre%202026.pdf) es la fuente de verdad. Este repositorio implementa únicamente el backend; no incluye frontend, carrito, pagos ni envíos.
+La [consigna del TPO](./TPO%20Segundo%20Cuatrimestre%202026.pdf) es la fuente de verdad. Este repositorio implementa únicamente el servidor; no incluye interfaz web, carrito, pagos ni envíos.
 
 ## Estado
 
-El alcance obligatorio del backend está implementado:
+El alcance obligatorio del servidor está implementado:
 
 - API REST con Node.js y Express.
 - PostgreSQL mediante `pg`, sin ORM.
@@ -24,16 +24,16 @@ El alcance obligatorio del backend está implementado:
 - Validaciones y respuestas de error JSON.
 - Pruebas automatizadas e integración real con PostgreSQL.
 
-## Stack
+## Tecnologías
 
-- JavaScript y CommonJS.
+- JavaScript con módulos CommonJS.
 - Node.js 24.20.0 y npm 11.
 - Express 5.2.1.
 - PostgreSQL 17.
 - `pg` sin ORM.
 - Zod para validación.
 - `bcryptjs` para contraseñas.
-- JSON Web Tokens para autenticación.
+- Tokens JWT para autenticación.
 - `node:test` para pruebas.
 
 ## Inicio rápido con Docker
@@ -51,7 +51,7 @@ fnm use
 docker compose up -d postgres
 ```
 
-Desde `backend/`:
+Desde el directorio `backend/`:
 
 ```bash
 npm ci
@@ -87,13 +87,13 @@ Los datos permanecen en el volumen `postgres_data`. Usar `docker compose down -v
 | `JWT_SECRET` | Firma de tokens; mínimo 32 caracteres | Cambiar antes de producción |
 | `JWT_EXPIRES_SECONDS` | Duración de sesión | `28800` |
 | `PASSWORD_RESET_EXPIRES_MINUTES` | Duración del token de recuperación | `30` |
-| `BCRYPT_ROUNDS` | Costo del hash de contraseña | `10` |
+| `BCRYPT_ROUNDS` | Costo del resumen criptográfico de contraseña | `10` |
 
 En producción, `JWT_SECRET` es obligatorio. El archivo `.env` está excluido de Git.
 
-## Endpoints
+## Rutas de la API
 
-Las rutas marcadas como **Admin** requieren:
+Las rutas marcadas como **Administrador** requieren:
 
 ```http
 Authorization: Bearer <token>
@@ -112,11 +112,11 @@ Authorization: Bearer <token>
 | --- | --- | --- | --- |
 | `POST` | `/api/v1/auth/register` | Público | Registra un administrador e inicia sesión. |
 | `POST` | `/api/v1/auth/login` | Público | Inicia sesión. |
-| `POST` | `/api/v1/auth/logout` | Admin | Revoca la sesión actual. |
+| `POST` | `/api/v1/auth/logout` | Administrador | Revoca la sesión actual. |
 | `POST` | `/api/v1/auth/forgot-password` | Público | Genera un token de recuperación. |
 | `POST` | `/api/v1/auth/reset-password` | Público | Cambia la contraseña y revoca sesiones previas. |
-| `GET` | `/api/v1/profile` | Admin | Obtiene el perfil. |
-| `PATCH` | `/api/v1/profile` | Admin | Modifica nombre, apellido, correo o teléfono. |
+| `GET` | `/api/v1/profile` | Administrador | Obtiene el perfil. |
+| `PATCH` | `/api/v1/profile` | Administrador | Modifica nombre, apellido, correo o teléfono. |
 
 En desarrollo y pruebas, `forgot-password` devuelve `resetToken` para poder probar el flujo con Postman. En producción no lo expone; allí debe entregarse por un canal externo.
 
@@ -125,7 +125,7 @@ En desarrollo y pruebas, `forgot-password` devuelve `resetToken` para poder prob
 | Método | Ruta | Acceso | Descripción |
 | --- | --- | --- | --- |
 | `GET` | `/api/v1/store` | Público | Consulta los datos del comercio. |
-| `PUT` | `/api/v1/store` | Admin | Crea o reemplaza los datos del comercio. |
+| `PUT` | `/api/v1/store` | Administrador | Crea o reemplaza los datos del comercio. |
 
 ### Categorías
 
@@ -133,9 +133,9 @@ En desarrollo y pruebas, `forgot-password` devuelve `resetToken` para poder prob
 | --- | --- | --- |
 | `GET` | `/api/v1/categories` | Público |
 | `GET` | `/api/v1/categories/:id` | Público |
-| `POST` | `/api/v1/categories` | Admin |
-| `PATCH` | `/api/v1/categories/:id` | Admin |
-| `DELETE` | `/api/v1/categories/:id` | Admin |
+| `POST` | `/api/v1/categories` | Administrador |
+| `PATCH` | `/api/v1/categories/:id` | Administrador |
+| `DELETE` | `/api/v1/categories/:id` | Administrador |
 
 Una categoría con productos asociados no puede eliminarse.
 
@@ -157,17 +157,17 @@ Parámetros del listado:
 | `page` | Página, desde 1. |
 | `limit` | Entre 1 y 100. |
 
-Los endpoints públicos nunca devuelven productos desactivados.
+Las rutas públicas nunca devuelven productos desactivados.
 
 ### Administración de productos
 
 | Método | Ruta | Acceso |
 | --- | --- | --- |
-| `GET` | `/api/v1/admin/products` | Admin |
-| `GET` | `/api/v1/admin/products/:id` | Admin |
-| `POST` | `/api/v1/admin/products` | Admin |
-| `PATCH` | `/api/v1/admin/products/:id` | Admin |
-| `DELETE` | `/api/v1/admin/products/:id` | Admin |
+| `GET` | `/api/v1/admin/products` | Administrador |
+| `GET` | `/api/v1/admin/products/:id` | Administrador |
+| `POST` | `/api/v1/admin/products` | Administrador |
+| `PATCH` | `/api/v1/admin/products/:id` | Administrador |
+| `DELETE` | `/api/v1/admin/products/:id` | Administrador |
 
 El listado administrativo acepta los filtros públicos y `isActive=true|false`.
 
@@ -176,10 +176,10 @@ El listado administrativo acepta los filtros públicos y `isActive=true|false`.
 | Método | Ruta | Acceso | Descripción |
 | --- | --- | --- | --- |
 | `POST` | `/api/v1/inquiries` | Público | Envía una consulta. |
-| `GET` | `/api/v1/inquiries` | Admin | Lista consultas. |
-| `GET` | `/api/v1/inquiries/:id` | Admin | Obtiene una consulta. |
-| `PATCH` | `/api/v1/inquiries/:id/status` | Admin | Cambia su estado. |
-| `DELETE` | `/api/v1/inquiries/:id` | Admin | Elimina una consulta. |
+| `GET` | `/api/v1/inquiries` | Administrador | Lista consultas. |
+| `GET` | `/api/v1/inquiries/:id` | Administrador | Obtiene una consulta. |
+| `PATCH` | `/api/v1/inquiries/:id/status` | Administrador | Cambia su estado. |
+| `DELETE` | `/api/v1/inquiries/:id` | Administrador | Elimina una consulta. |
 
 El listado acepta `status`, `page` y `limit`. Los estados son `pending`, `read` y `answered`.
 
@@ -198,23 +198,23 @@ npm run db:migrate
 npm run db:seed
 ```
 
-Las migraciones viven en `backend/src/db/migrations/`. El seed puede ejecutarse varias veces sin duplicar categorías ni productos.
+Las migraciones se encuentran en `backend/src/db/migrations/`. La carga inicial puede ejecutarse varias veces sin duplicar categorías ni productos.
 
-El modelo completo y consultas de inspección están en [backend/docs/DATABASE.md](backend/docs/DATABASE.md).
+El modelo completo y las consultas de inspección están en [backend/docs/BASE_DE_DATOS.md](backend/docs/BASE_DE_DATOS.md).
 
 ## Pruebas con Postman
 
-La guía paso a paso y las consultas SQL para verificar cada cambio están en [backend/docs/POSTMAN.md](backend/docs/POSTMAN.md).
+La guía paso a paso y las consultas SQL para verificar cada cambio están en [backend/docs/PRUEBAS_CON_POSTMAN.md](backend/docs/PRUEBAS_CON_POSTMAN.md).
 
 También se incluye una colección importable:
 
 ```text
-backend/postman/Hardware Gamer API.postman_collection.json
+backend/postman/API de Componentes para Videojuegos.postman_collection.json
 ```
 
 ## Pruebas automatizadas
 
-Suite rápida, sin depender de PostgreSQL:
+Conjunto de pruebas rápidas, sin depender de PostgreSQL:
 
 ```bash
 npm test
@@ -230,7 +230,7 @@ NODE_ENV=test \
 npm run test:integration
 ```
 
-## Scripts
+## Comandos disponibles
 
 | Comando | Descripción |
 | --- | --- |
@@ -239,14 +239,14 @@ npm run test:integration
 | `npm run db:check` | Comprueba PostgreSQL. |
 | `npm run db:migrate` | Aplica migraciones pendientes. |
 | `npm run db:seed` | Carga seis categorías y 20 productos. |
-| `npm run db:setup` | Ejecuta migraciones y seed. |
+| `npm run db:setup` | Ejecuta las migraciones y la carga inicial. |
 | `npm test` | Ejecuta pruebas rápidas. |
 | `npm run test:integration` | Ejecuta pruebas reales contra PostgreSQL. |
 | `npm run test:watch` | Ejecuta pruebas en modo observación. |
 
 ## Decisiones de alcance
 
-- Una publicación guarda una URL de imagen obligatoria. La gestión de múltiples imágenes figura como funcionalidad extra en la consigna.
-- El envío real de correos también es extra. El flujo de recuperación está implementado, pero requiere integrar un proveedor de correo para producción.
-- No se implementó frontend por decisión expresa del proyecto.
+- Una publicación guarda una URL de imagen obligatoria. La gestión de múltiples imágenes figura como funcionalidad adicional en la consigna.
+- El envío real de correos también es una funcionalidad adicional. El flujo de recuperación está implementado, pero requiere integrar un proveedor de correo para producción.
+- No se implementó una interfaz web por decisión expresa del proyecto.
 - No se implementaron carrito, pagos ni envíos porque no forman parte de la consigna.

@@ -1,6 +1,6 @@
 \set ON_ERROR_STOP on
 
--- Run from backend/ against an existing empty PostgreSQL database:
+-- Ejecutar desde backend/ sobre una base de datos PostgreSQL vacía existente:
 -- psql "$DATABASE_URL" -f database/create_database.sql
 
 BEGIN;
