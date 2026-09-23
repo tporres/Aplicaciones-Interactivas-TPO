@@ -36,19 +36,38 @@ El alcance obligatorio del servidor está implementado:
 - Tokens JWT para autenticación.
 - `node:test` para pruebas.
 
-## Inicio rápido con Docker
+## Inicio rápido con PostgreSQL local
 
 Requisitos:
 
 - Node.js 24.20.0, preferentemente mediante `fnm`.
-- Docker con Compose.
+- PostgreSQL 17 instalado mediante Homebrew.
+- Postman para las pruebas manuales.
 
-Desde la raíz del repositorio:
+Instalar las herramientas en macOS, si todavía no están disponibles:
+
+```bash
+brew install postgresql@17
+brew install --cask postman
+```
+
+Iniciar PostgreSQL:
+
+```bash
+brew services start postgresql@17
+```
+
+Crear la base la primera vez:
+
+```bash
+createdb gamer_store
+```
+
+Desde la raíz del repositorio, seleccionar la versión de Node.js:
 
 ```bash
 fnm install
 fnm use
-docker compose up -d postgres
 ```
 
 Desde el directorio `backend/`:
@@ -70,10 +89,10 @@ curl http://localhost:3000/api/v1/health/ready
 Para detener PostgreSQL:
 
 ```bash
-docker compose down
+brew services stop postgresql@17
 ```
 
-Los datos permanecen en el volumen `postgres_data`. Usar `docker compose down -v` solamente cuando se desee eliminar toda la base local.
+Detener el servicio no elimina la base ni sus datos. Docker no es necesario para ejecutar el proyecto.
 
 ## Variables de entorno
 
@@ -81,7 +100,7 @@ Los datos permanecen en el volumen `postgres_data`. Usar `docker compose down -v
 | --- | --- | --- |
 | `NODE_ENV` | Entorno de ejecución | `development` |
 | `PORT` | Puerto HTTP | `3000` |
-| `DATABASE_URL` | URL de PostgreSQL | `postgresql://postgres:postgres@localhost:5432/gamer_store` |
+| `DATABASE_URL` | URL de PostgreSQL | `postgresql://localhost:5432/gamer_store` |
 | `DATABASE_SSL` | Habilita TLS para PostgreSQL | `false` |
 | `DATABASE_POOL_MAX` | Máximo de conexiones | `10` |
 | `JWT_SECRET` | Firma de tokens; mínimo 32 caracteres | Cambiar antes de producción |
@@ -224,8 +243,8 @@ Las pruebas de integración eliminan datos de sus tablas. Usar exclusivamente un
 
 ```bash
 createdb gamer_store_test
-TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gamer_store_test \
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gamer_store_test \
+TEST_DATABASE_URL=postgresql://localhost:5432/gamer_store_test \
+DATABASE_URL=postgresql://localhost:5432/gamer_store_test \
 NODE_ENV=test \
 npm run test:integration
 ```

@@ -5,7 +5,8 @@
 1. Iniciar PostgreSQL y preparar la base:
 
    ```bash
-   docker compose up -d postgres
+   brew services start postgresql@17
+   createdb gamer_store # solamente la primera vez
    cd backend
    npm ci
    cp .env.example .env

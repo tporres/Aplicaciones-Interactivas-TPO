@@ -106,10 +106,10 @@ psql "$DATABASE_URL" -f database/create_database.sql
 
 ## Inspección manual
 
-Con PostgreSQL iniciado mediante Docker:
+Con PostgreSQL iniciado mediante Homebrew:
 
 ```bash
-docker compose exec postgres psql -U postgres -d gamer_store
+psql -d gamer_store
 ```
 
 Comandos útiles dentro de `psql`:
