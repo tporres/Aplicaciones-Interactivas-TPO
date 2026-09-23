@@ -4,6 +4,7 @@ const { describe, it } = require("node:test");
 const {
   parseBoolean,
   parseDatabaseUrl,
+  parseJwtSecret,
   parsePort,
   parsePositiveInteger,
 } = require("../src/config/env");
@@ -50,6 +51,21 @@ describe("environment configuration", () => {
     assert.throws(
       () => parseDatabaseUrl("mysql://localhost/database"),
       /DATABASE_URL must use the postgres or postgresql protocol/,
+    );
+  });
+
+  it("requires a strong JWT secret in production", () => {
+    assert.equal(
+      parseJwtSecret("a-secure-secret-with-at-least-32-characters", "production"),
+      "a-secure-secret-with-at-least-32-characters",
+    );
+    assert.throws(
+      () => parseJwtSecret(undefined, "production"),
+      /JWT_SECRET is required in production/,
+    );
+    assert.throws(
+      () => parseJwtSecret("too-short", "development"),
+      /JWT_SECRET must contain at least 32 characters/,
     );
   });
 });

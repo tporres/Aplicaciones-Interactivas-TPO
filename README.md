@@ -1,302 +1,252 @@
 # Aplicaciones Interactivas - TPO
 
-Plataforma web para un pequeño comercio de hardware gamer, desarrollada como Trabajo Práctico Obligatorio de Aplicaciones Interactivas.
+Backend REST para una plataforma promocional de hardware gamer, desarrollado como Trabajo Práctico Obligatorio de Aplicaciones Interactivas.
 
-El sistema permitirá publicar y administrar un catálogo de productos, organizarlo por categorías, ofrecer información institucional y recibir consultas de visitantes. No se plantea como un e-commerce transaccional: el alcance obligatorio no incluye carrito, pagos ni envíos.
+La [consigna del TPO](./TPO%20Segundo%20Cuatrimestre%202026.pdf) es la fuente de verdad. Este repositorio implementa únicamente el backend; no incluye frontend, carrito, pagos ni envíos.
 
-La [consigna del TPO](./TPO%20Segundo%20Cuatrimestre%202026.pdf) es la fuente de verdad para los requisitos del proyecto.
+## Estado
 
-## Estado actual
+El alcance obligatorio del backend está implementado:
 
-El proyecto se encuentra en desarrollo y, por el momento, se trabaja exclusivamente sobre el backend.
-
-La primera etapa incluye:
-
-- Servidor HTTP con Express.
-- Configuración mediante variables de entorno.
-- Endpoint de estado de la API.
-- Manejo centralizado de errores.
-- Respuestas JSON para rutas inexistentes y cuerpos inválidos.
-- Pruebas automatizadas con las herramientas incorporadas en Node.js.
-- Conexión a PostgreSQL mediante `pg`.
-- Migraciones SQL versionadas.
-- Verificación de disponibilidad de la base de datos.
-- CRUD completo de categorías con validaciones.
-- Registro, sesión, cierre de sesión y recuperación de contraseña.
-- Perfil protegido del administrador.
+- API REST con Node.js y Express.
+- PostgreSQL mediante `pg`, sin ORM.
+- Migraciones SQL y carga inicial idempotente.
+- Registro, inicio y cierre de sesión.
+- Recuperación de contraseña y perfil del administrador.
+- Autenticación y autorización mediante JWT con sesiones revocables.
 - Información institucional pública y administrable.
-- Formulario público y gestión de consultas recibidas.
-
-Todavía no se implementaron productos.
+- CRUD de categorías.
+- Catálogo y CRUD de productos.
+- Activación, desactivación y disponibilidad de productos.
+- Búsqueda, filtro por categoría, orden y paginación.
+- Formulario público y gestión administrativa de consultas.
+- 20 productos precargados.
+- Validaciones y respuestas de error JSON.
+- Pruebas automatizadas e integración real con PostgreSQL.
 
 ## Stack
 
-### Backend actual
-
-- JavaScript.
-- Node.js 24.20.0.
-- npm 11.
+- JavaScript y CommonJS.
+- Node.js 24.20.0 y npm 11.
 - Express 5.2.1.
 - PostgreSQL 17.
 - `pg` sin ORM.
-- Zod para validaciones.
-- CommonJS.
-- `node:test` para pruebas automatizadas.
+- Zod para validación.
+- `bcryptjs` para contraseñas.
+- JSON Web Tokens para autenticación.
+- `node:test` para pruebas.
 
-### Componentes planificados
+## Inicio rápido con Docker
 
-- React y React Router para el frontend, una vez finalizadas las etapas iniciales del backend.
+Requisitos:
 
-## Requisitos
+- Node.js 24.20.0, preferentemente mediante `fnm`.
+- Docker con Compose.
 
-- [fnm](https://github.com/Schniz/fnm) o una instalación compatible de Node.js 24.
-- npm, incluido con Node.js.
-- Docker con Compose, o una instalación local compatible de PostgreSQL 17.
-
-El repositorio contiene un archivo `.node-version`, por lo que `fnm` puede seleccionar automáticamente la versión correcta.
-
-## Instalación
-
-Clonar el repositorio:
-
-```bash
-git clone git@github.com:matiasalek/Aplicaciones-Interactivas-TPO.git
-cd Aplicaciones-Interactivas-TPO
-```
-
-Instalar y activar la versión de Node.js:
+Desde la raíz del repositorio:
 
 ```bash
 fnm install
 fnm use
-```
-
-Instalar las dependencias del backend:
-
-```bash
-cd backend
-npm install
-```
-
-Crear la configuración local:
-
-```bash
-cp .env.example .env
-```
-
-Iniciar PostgreSQL desde la raíz del repositorio:
-
-```bash
 docker compose up -d postgres
 ```
-
-Aplicar las migraciones desde `backend/`:
-
-```bash
-npm run db:migrate
-```
-
-## Variables de entorno
-
-| Variable | Descripción | Valor predeterminado |
-| --- | --- | --- |
-| `NODE_ENV` | Entorno de ejecución | `development` |
-| `PORT` | Puerto del servidor HTTP | `3000` |
-| `DATABASE_URL` | URL de conexión a PostgreSQL | `postgresql://postgres:postgres@localhost:5432/gamer_store` |
-| `DATABASE_SSL` | Activa TLS para PostgreSQL | `false` |
-| `DATABASE_POOL_MAX` | Máximo de conexiones del pool | `10` |
-
-El archivo `.env` es local y no debe subirse al repositorio. Los valores de referencia se encuentran en `backend/.env.example`.
-
-## Ejecución
 
 Desde `backend/`:
 
 ```bash
+npm ci
+cp .env.example .env
+npm run db:setup
 npm run dev
 ```
 
-El modo de desarrollo reinicia el servidor automáticamente cuando cambia el código.
-
-Para una ejecución normal:
-
-```bash
-npm start
-```
-
-La API estará disponible por defecto en `http://localhost:3000`.
-
-## Endpoint disponible
-
-### Estado de la API
-
-```http
-GET /api/v1/health
-```
-
-Respuesta exitosa:
-
-```json
-{
-  "status": "ok"
-}
-```
-
-### Disponibilidad de la API
-
-```http
-GET /api/v1/health/ready
-```
-
-Devuelve `200` cuando PostgreSQL está disponible y `503` cuando la API no puede conectarse a la base de datos.
-
-### Categorías
-
-| Método | Ruta | Descripción |
-| --- | --- | --- |
-| `GET` | `/api/v1/categories` | Lista las categorías. |
-| `GET` | `/api/v1/categories/:id` | Obtiene una categoría. |
-| `POST` | `/api/v1/categories` | Crea una categoría. |
-| `PATCH` | `/api/v1/categories/:id` | Modifica una categoría. |
-| `DELETE` | `/api/v1/categories/:id` | Elimina una categoría. |
-
-Ejemplo de creación:
-
-```json
-{
-  "name": "Graphics Cards",
-  "description": "Dedicated GPUs"
-}
-```
-
-### Autenticación y perfil
-
-| Método | Ruta | Acceso |
-| --- | --- | --- |
-| `POST` | `/api/v1/auth/register` | Público |
-| `POST` | `/api/v1/auth/login` | Público |
-| `POST` | `/api/v1/auth/logout` | Administrador |
-| `POST` | `/api/v1/auth/forgot-password` | Público |
-| `POST` | `/api/v1/auth/reset-password` | Público |
-| `GET` | `/api/v1/profile` | Administrador |
-| `PATCH` | `/api/v1/profile` | Administrador |
-
-Las rutas administrativas requieren `Authorization: Bearer <token>`. En desarrollo, la solicitud de recuperación devuelve el token en la respuesta para facilitar las pruebas con Postman. En producción deberá enviarse por correo.
-
-### Información institucional
-
-| Método | Ruta | Acceso |
-| --- | --- | --- |
-| `GET` | `/api/v1/store` | Público |
-| `PUT` | `/api/v1/store` | Administrador |
-
-### Consultas
-
-| Método | Ruta | Acceso |
-| --- | --- | --- |
-| `POST` | `/api/v1/inquiries` | Público |
-| `GET` | `/api/v1/inquiries` | Administrador |
-| `GET` | `/api/v1/inquiries/:id` | Administrador |
-| `PATCH` | `/api/v1/inquiries/:id/status` | Administrador |
-| `DELETE` | `/api/v1/inquiries/:id` | Administrador |
-
-El listado acepta `status`, `page` y `limit`. Los estados válidos son `pending`, `read` y `answered`.
-
-Ejemplo con `curl`:
+La API queda disponible en `http://localhost:3000`. Comprobarla con:
 
 ```bash
 curl http://localhost:3000/api/v1/health
+curl http://localhost:3000/api/v1/health/ready
 ```
 
-## Pruebas
+Para detener PostgreSQL:
 
-Ejecutar toda la suite:
+```bash
+docker compose down
+```
+
+Los datos permanecen en el volumen `postgres_data`. Usar `docker compose down -v` solamente cuando se desee eliminar toda la base local.
+
+## Variables de entorno
+
+| Variable | Descripción | Valor de desarrollo |
+| --- | --- | --- |
+| `NODE_ENV` | Entorno de ejecución | `development` |
+| `PORT` | Puerto HTTP | `3000` |
+| `DATABASE_URL` | URL de PostgreSQL | `postgresql://postgres:postgres@localhost:5432/gamer_store` |
+| `DATABASE_SSL` | Habilita TLS para PostgreSQL | `false` |
+| `DATABASE_POOL_MAX` | Máximo de conexiones | `10` |
+| `JWT_SECRET` | Firma de tokens; mínimo 32 caracteres | Cambiar antes de producción |
+| `JWT_EXPIRES_SECONDS` | Duración de sesión | `28800` |
+| `PASSWORD_RESET_EXPIRES_MINUTES` | Duración del token de recuperación | `30` |
+| `BCRYPT_ROUNDS` | Costo del hash de contraseña | `10` |
+
+En producción, `JWT_SECRET` es obligatorio. El archivo `.env` está excluido de Git.
+
+## Endpoints
+
+Las rutas marcadas como **Admin** requieren:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Salud
+
+| Método | Ruta | Acceso | Descripción |
+| --- | --- | --- | --- |
+| `GET` | `/api/v1/health` | Público | Estado del proceso HTTP. |
+| `GET` | `/api/v1/health/ready` | Público | Estado de PostgreSQL. |
+
+### Autenticación y perfil
+
+| Método | Ruta | Acceso | Descripción |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/auth/register` | Público | Registra un administrador e inicia sesión. |
+| `POST` | `/api/v1/auth/login` | Público | Inicia sesión. |
+| `POST` | `/api/v1/auth/logout` | Admin | Revoca la sesión actual. |
+| `POST` | `/api/v1/auth/forgot-password` | Público | Genera un token de recuperación. |
+| `POST` | `/api/v1/auth/reset-password` | Público | Cambia la contraseña y revoca sesiones previas. |
+| `GET` | `/api/v1/profile` | Admin | Obtiene el perfil. |
+| `PATCH` | `/api/v1/profile` | Admin | Modifica nombre, apellido, correo o teléfono. |
+
+En desarrollo y pruebas, `forgot-password` devuelve `resetToken` para poder probar el flujo con Postman. En producción no lo expone; allí debe entregarse por un canal externo.
+
+### Información institucional
+
+| Método | Ruta | Acceso | Descripción |
+| --- | --- | --- | --- |
+| `GET` | `/api/v1/store` | Público | Consulta los datos del comercio. |
+| `PUT` | `/api/v1/store` | Admin | Crea o reemplaza los datos del comercio. |
+
+### Categorías
+
+| Método | Ruta | Acceso |
+| --- | --- | --- |
+| `GET` | `/api/v1/categories` | Público |
+| `GET` | `/api/v1/categories/:id` | Público |
+| `POST` | `/api/v1/categories` | Admin |
+| `PATCH` | `/api/v1/categories/:id` | Admin |
+| `DELETE` | `/api/v1/categories/:id` | Admin |
+
+Una categoría con productos asociados no puede eliminarse.
+
+### Productos públicos
+
+| Método | Ruta | Acceso |
+| --- | --- | --- |
+| `GET` | `/api/v1/products` | Público |
+| `GET` | `/api/v1/products/:id` | Público |
+
+Parámetros del listado:
+
+| Parámetro | Valores |
+| --- | --- |
+| `q` | Texto de búsqueda. |
+| `categoryId` | Identificador positivo. |
+| `availability` | `in_stock`, `out_of_stock`, `preorder`. |
+| `sort` | `newest`, `name`, `price_asc`, `price_desc`. |
+| `page` | Página, desde 1. |
+| `limit` | Entre 1 y 100. |
+
+Los endpoints públicos nunca devuelven productos desactivados.
+
+### Administración de productos
+
+| Método | Ruta | Acceso |
+| --- | --- | --- |
+| `GET` | `/api/v1/admin/products` | Admin |
+| `GET` | `/api/v1/admin/products/:id` | Admin |
+| `POST` | `/api/v1/admin/products` | Admin |
+| `PATCH` | `/api/v1/admin/products/:id` | Admin |
+| `DELETE` | `/api/v1/admin/products/:id` | Admin |
+
+El listado administrativo acepta los filtros públicos y `isActive=true|false`.
+
+### Consultas
+
+| Método | Ruta | Acceso | Descripción |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/inquiries` | Público | Envía una consulta. |
+| `GET` | `/api/v1/inquiries` | Admin | Lista consultas. |
+| `GET` | `/api/v1/inquiries/:id` | Admin | Obtiene una consulta. |
+| `PATCH` | `/api/v1/inquiries/:id/status` | Admin | Cambia su estado. |
+| `DELETE` | `/api/v1/inquiries/:id` | Admin | Elimina una consulta. |
+
+El listado acepta `status`, `page` y `limit`. Los estados son `pending`, `read` y `answered`.
+
+## Base de datos
+
+Preparar esquema y datos:
+
+```bash
+npm run db:setup
+```
+
+Los comandos también pueden ejecutarse por separado:
+
+```bash
+npm run db:migrate
+npm run db:seed
+```
+
+Las migraciones viven en `backend/src/db/migrations/`. El seed puede ejecutarse varias veces sin duplicar categorías ni productos.
+
+El modelo completo y consultas de inspección están en [backend/docs/DATABASE.md](backend/docs/DATABASE.md).
+
+## Pruebas con Postman
+
+La guía paso a paso y las consultas SQL para verificar cada cambio están en [backend/docs/POSTMAN.md](backend/docs/POSTMAN.md).
+
+También se incluye una colección importable:
+
+```text
+backend/postman/Hardware Gamer API.postman_collection.json
+```
+
+## Pruebas automatizadas
+
+Suite rápida, sin depender de PostgreSQL:
 
 ```bash
 npm test
 ```
 
-Ejecutar las pruebas en modo observación:
+Las pruebas de integración eliminan datos de sus tablas. Usar exclusivamente una base de pruebas:
 
 ```bash
-npm run test:watch
-```
-
-La suite actual verifica:
-
-- Respuesta correcta del endpoint de salud.
-- Respuesta JSON `404` para rutas inexistentes.
-- Respuesta JSON `400` para cuerpos JSON inválidos.
-- Validación de la variable de entorno `PORT`.
-- Validaciones y manejo de errores de categorías.
-
-Las pruebas de integración requieren una base de datos exclusiva para pruebas:
-
-```bash
+createdb gamer_store_test
 TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gamer_store_test \
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gamer_store_test \
+NODE_ENV=test \
 npm run test:integration
 ```
 
-La suite trunca sus tablas y nunca debe apuntar a una base con datos importantes.
-
-## Estructura actual
-
-```text
-backend/
-├── src/
-│   ├── config/
-│   │   └── env.js
-│   ├── controllers/
-│   │   ├── categories.controller.js
-│   │   └── health.controller.js
-│   ├── db/
-│   │   ├── migrations/
-│   │   │   └── 001_create_categories.sql
-│   │   ├── check.js
-│   │   ├── database.js
-│   │   └── migrate.js
-│   ├── errors/
-│   │   └── app-error.js
-│   ├── middlewares/
-│   │   ├── error.middleware.js
-│   │   ├── not-found.middleware.js
-│   │   └── validate.middleware.js
-│   ├── repositories/
-│   │   └── categories.repository.js
-│   ├── routes/
-│   │   ├── categories.routes.js
-│   │   └── health.routes.js
-│   ├── services/
-│   │   └── categories.service.js
-│   ├── validators/
-│   │   └── category.schemas.js
-│   ├── app.js
-│   └── server.js
-├── tests/
-│   ├── app.test.js
-│   └── env.test.js
-├── .env.example
-├── package.json
-└── package-lock.json
-```
-
-## Scripts disponibles
+## Scripts
 
 | Comando | Descripción |
 | --- | --- |
-| `npm start` | Inicia el servidor. |
-| `npm run dev` | Inicia el servidor con reinicio automático. |
-| `npm run db:check` | Verifica la conexión a PostgreSQL. |
-| `npm run db:migrate` | Aplica migraciones SQL pendientes. |
-| `npm test` | Ejecuta las pruebas una vez. |
-| `npm run test:integration` | Ejecuta pruebas contra PostgreSQL. |
-| `npm run test:watch` | Ejecuta las pruebas ante cada cambio. |
+| `npm start` | Inicia la API. |
+| `npm run dev` | Inicia con reinicio automático. |
+| `npm run db:check` | Comprueba PostgreSQL. |
+| `npm run db:migrate` | Aplica migraciones pendientes. |
+| `npm run db:seed` | Carga seis categorías y 20 productos. |
+| `npm run db:setup` | Ejecuta migraciones y seed. |
+| `npm test` | Ejecuta pruebas rápidas. |
+| `npm run test:integration` | Ejecuta pruebas reales contra PostgreSQL. |
+| `npm run test:watch` | Ejecuta pruebas en modo observación. |
 
-## Próximas etapas
+## Decisiones de alcance
 
-1. Implementar productos, búsqueda y filtros.
-2. Implementar información institucional.
-3. Implementar consultas de contacto.
-4. Implementar registro, autenticación, recuperación de contraseña y perfil.
-5. Cargar al menos 20 productos y completar la documentación técnica.
+- Una publicación guarda una URL de imagen obligatoria. La gestión de múltiples imágenes figura como funcionalidad extra en la consigna.
+- El envío real de correos también es extra. El flujo de recuperación está implementado, pero requiere integrar un proveedor de correo para producción.
+- No se implementó frontend por decisión expresa del proyecto.
+- No se implementaron carrito, pagos ni envíos porque no forman parte de la consigna.

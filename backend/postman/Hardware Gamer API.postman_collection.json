@@ -1,0 +1,346 @@
+{
+  "info": {
+    "name": "Hardware Gamer API",
+    "description": "Colección para probar el backend del TPO. Ejecutar db:setup y levantar la API antes de comenzar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" },
+    { "key": "categoryId", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "inquiryId", "value": "" },
+    { "key": "resetToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Liveness",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/health" }
+        },
+        {
+          "name": "Readiness",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/health/ready" }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('administrator created', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('token', pm.response.json().data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Postman\",\n  \"lastName\": \"Admin\",\n  \"email\": \"postman.admin@example.com\",\n  \"phone\": \"+54 11 5555 1234\",\n  \"password\": \"StrongPass123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('login succeeds', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) pm.collectionVariables.set('token', pm.response.json().data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"postman.admin@example.com\",\n  \"password\": \"StrongPass123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Get profile",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/profile"
+          }
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+54 11 4000 9999\"\n}" },
+            "url": "{{baseUrl}}/api/v1/profile"
+          }
+        },
+        {
+          "name": "Forgot password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('reset accepted', () => pm.response.to.have.status(202));",
+                  "const body = pm.response.json();",
+                  "if (body.data.resetToken) pm.collectionVariables.set('resetToken', body.data.resetToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"postman.admin@example.com\"\n}" },
+            "url": "{{baseUrl}}/api/v1/auth/forgot-password"
+          }
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"NewStrongPass456!\"\n}" },
+            "url": "{{baseUrl}}/api/v1/auth/reset-password"
+          }
+        },
+        {
+          "name": "Login with new password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) pm.collectionVariables.set('token', pm.response.json().data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"postman.admin@example.com\",\n  \"password\": \"NewStrongPass456!\"\n}" },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Store",
+      "item": [
+        {
+          "name": "Upsert store information",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pixel Forge Hardware\",\n  \"description\": \"Hardware gamer y asesoramiento especializado.\",\n  \"address\": \"Av. Corrientes 1234, CABA\",\n  \"phone\": \"+54 11 4444 4444\",\n  \"socialLinks\": {\n    \"instagram\": \"https://instagram.com/pixelforge\"\n  },\n  \"openingHours\": \"Lunes a sábado de 10:00 a 19:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/store"
+          }
+        },
+        {
+          "name": "Get store information",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/store" }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List categories",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/categories" }
+        },
+        {
+          "name": "Create category",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('categoryId', pm.response.json().data.id);"] }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Components\",\n  \"description\": \"Categoría creada durante la prueba manual\"\n}" },
+            "url": "{{baseUrl}}/api/v1/categories"
+          }
+        },
+        {
+          "name": "Update category",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Categoría actualizada desde Postman\"\n}" },
+            "url": "{{baseUrl}}/api/v1/categories/{{categoryId}}"
+          }
+        },
+        {
+          "name": "Delete category",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/categories/{{categoryId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products public",
+      "item": [
+        {
+          "name": "Search and filter products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/products?q=gaming&categoryId={{categoryId}}&availability=in_stock&sort=price_desc&page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get product",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/products/{{productId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Products admin",
+      "item": [
+        {
+          "name": "Create product",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('productId', pm.response.json().data.id);"] }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": {{categoryId}},\n  \"name\": \"Postman Gaming GPU\",\n  \"description\": \"Producto gaming creado desde Postman\",\n  \"imageUrl\": \"https://placehold.co/800x600?text=Postman+GPU\",\n  \"price\": 999999.99,\n  \"availability\": \"in_stock\",\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/admin/products"
+          }
+        },
+        {
+          "name": "List inactive products",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/products?isActive=false&page=1&limit=20"
+          }
+        },
+        {
+          "name": "Deactivate product",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"isActive\": false,\n  \"availability\": \"out_of_stock\"\n}" },
+            "url": "{{baseUrl}}/api/v1/admin/products/{{productId}}"
+          }
+        },
+        {
+          "name": "Activate product",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"isActive\": true,\n  \"availability\": \"in_stock\"\n}" },
+            "url": "{{baseUrl}}/api/v1/admin/products/{{productId}}"
+          }
+        },
+        {
+          "name": "Delete product",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/admin/products/{{productId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inquiries",
+      "item": [
+        {
+          "name": "Submit inquiry",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["if (pm.response.code === 201) pm.collectionVariables.set('inquiryId', pm.response.json().data.id);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Visitor\",\n  \"email\": \"visitor@example.com\",\n  \"phone\": null,\n  \"subject\": \"Consulta sobre stock\",\n  \"message\": \"¿Tienen disponibilidad inmediata?\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/inquiries"
+          }
+        },
+        {
+          "name": "List pending inquiries",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/inquiries?status=pending&page=1&limit=20"
+          }
+        },
+        {
+          "name": "Mark inquiry as answered",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"answered\"\n}" },
+            "url": "{{baseUrl}}/api/v1/inquiries/{{inquiryId}}/status"
+          }
+        },
+        {
+          "name": "Delete inquiry",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/inquiries/{{inquiryId}}"
+          }
+        }
+      ]
+    }
+  ]
+}
