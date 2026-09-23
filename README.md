@@ -24,8 +24,10 @@ La primera etapa incluye:
 - CRUD completo de categorías con validaciones.
 - Registro, sesión, cierre de sesión y recuperación de contraseña.
 - Perfil protegido del administrador.
+- Información institucional pública y administrable.
+- Formulario público y gestión de consultas recibidas.
 
-Todavía no se implementaron productos ni consultas.
+Todavía no se implementaron productos.
 
 ## Stack
 
@@ -180,6 +182,25 @@ Ejemplo de creación:
 | `PATCH` | `/api/v1/profile` | Administrador |
 
 Las rutas administrativas requieren `Authorization: Bearer <token>`. En desarrollo, la solicitud de recuperación devuelve el token en la respuesta para facilitar las pruebas con Postman. En producción deberá enviarse por correo.
+
+### Información institucional
+
+| Método | Ruta | Acceso |
+| --- | --- | --- |
+| `GET` | `/api/v1/store` | Público |
+| `PUT` | `/api/v1/store` | Administrador |
+
+### Consultas
+
+| Método | Ruta | Acceso |
+| --- | --- | --- |
+| `POST` | `/api/v1/inquiries` | Público |
+| `GET` | `/api/v1/inquiries` | Administrador |
+| `GET` | `/api/v1/inquiries/:id` | Administrador |
+| `PATCH` | `/api/v1/inquiries/:id/status` | Administrador |
+| `DELETE` | `/api/v1/inquiries/:id` | Administrador |
+
+El listado acepta `status`, `page` y `limit`. Los estados válidos son `pending`, `read` y `answered`.
 
 Ejemplo con `curl`:
 
