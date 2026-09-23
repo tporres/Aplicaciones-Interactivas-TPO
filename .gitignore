@@ -17,6 +17,9 @@ npm-debug.log*
 coverage/
 dist/
 
+# Project-local PostgreSQL data
+.postgres-data/
+
 # Operating system and editor files
 .DS_Store
 .idea/

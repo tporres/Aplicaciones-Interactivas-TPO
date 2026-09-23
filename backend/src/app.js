@@ -1,16 +1,21 @@
 const express = require("express");
 
-const healthRouter = require("./routes/health.routes");
+const database = require("./db/database");
+const { createHealthRouter } = require("./routes/health.routes");
 const { errorHandler } = require("./middlewares/error.middleware");
 const { notFoundHandler } = require("./middlewares/not-found.middleware");
 
-function createApp() {
+function createApp(dependencies = {}) {
   const app = express();
+  const appDatabase = dependencies.database || database;
 
   app.disable("x-powered-by");
   app.use(express.json({ limit: "1mb" }));
 
-  app.use("/api/v1/health", healthRouter);
+  app.use(
+    "/api/v1/health",
+    createHealthRouter({ database: appDatabase }),
+  );
 
   app.use(notFoundHandler);
   app.use(errorHandler);

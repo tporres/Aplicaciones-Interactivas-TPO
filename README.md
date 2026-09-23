@@ -18,8 +18,11 @@ La primera etapa incluye:
 - Manejo centralizado de errores.
 - Respuestas JSON para rutas inexistentes y cuerpos inválidos.
 - Pruebas automatizadas con las herramientas incorporadas en Node.js.
+- Conexión a PostgreSQL mediante `pg`.
+- Migraciones SQL versionadas.
+- Verificación de disponibilidad de la base de datos.
 
-Todavía no se implementaron base de datos, autenticación, productos, categorías ni consultas.
+Todavía no se implementaron autenticación, productos, categorías ni consultas.
 
 ## Stack
 
@@ -29,19 +32,21 @@ Todavía no se implementaron base de datos, autenticación, productos, categorí
 - Node.js 24.20.0.
 - npm 11.
 - Express 5.2.1.
+- PostgreSQL 17.
+- `pg` sin ORM.
+- Zod para validaciones.
 - CommonJS.
 - `node:test` para pruebas automatizadas.
 
 ### Componentes planificados
 
-- PostgreSQL para persistencia.
-- Driver `pg` para acceder a PostgreSQL sin ORM.
 - React y React Router para el frontend, una vez finalizadas las etapas iniciales del backend.
 
 ## Requisitos
 
 - [fnm](https://github.com/Schniz/fnm) o una instalación compatible de Node.js 24.
 - npm, incluido con Node.js.
+- Docker con Compose, o una instalación local compatible de PostgreSQL 17.
 
 El repositorio contiene un archivo `.node-version`, por lo que `fnm` puede seleccionar automáticamente la versión correcta.
 
@@ -74,12 +79,27 @@ Crear la configuración local:
 cp .env.example .env
 ```
 
+Iniciar PostgreSQL desde la raíz del repositorio:
+
+```bash
+docker compose up -d postgres
+```
+
+Aplicar las migraciones desde `backend/`:
+
+```bash
+npm run db:migrate
+```
+
 ## Variables de entorno
 
 | Variable | Descripción | Valor predeterminado |
 | --- | --- | --- |
 | `NODE_ENV` | Entorno de ejecución | `development` |
 | `PORT` | Puerto del servidor HTTP | `3000` |
+| `DATABASE_URL` | URL de conexión a PostgreSQL | `postgresql://postgres:postgres@localhost:5432/gamer_store` |
+| `DATABASE_SSL` | Activa TLS para PostgreSQL | `false` |
+| `DATABASE_POOL_MAX` | Máximo de conexiones del pool | `10` |
 
 El archivo `.env` es local y no debe subirse al repositorio. Los valores de referencia se encuentran en `backend/.env.example`.
 
@@ -117,6 +137,14 @@ Respuesta exitosa:
 }
 ```
 
+### Disponibilidad de la API
+
+```http
+GET /api/v1/health/ready
+```
+
+Devuelve `200` cuando PostgreSQL está disponible y `503` cuando la API no puede conectarse a la base de datos.
+
 Ejemplo con `curl`:
 
 ```bash
@@ -153,6 +181,11 @@ backend/
 │   │   └── env.js
 │   ├── controllers/
 │   │   └── health.controller.js
+│   ├── db/
+│   │   ├── migrations/
+│   │   ├── check.js
+│   │   ├── database.js
+│   │   └── migrate.js
 │   ├── middlewares/
 │   │   ├── error.middleware.js
 │   │   └── not-found.middleware.js
@@ -174,6 +207,8 @@ backend/
 | --- | --- |
 | `npm start` | Inicia el servidor. |
 | `npm run dev` | Inicia el servidor con reinicio automático. |
+| `npm run db:check` | Verifica la conexión a PostgreSQL. |
+| `npm run db:migrate` | Aplica migraciones SQL pendientes. |
 | `npm test` | Ejecuta las pruebas una vez. |
 | `npm run test:watch` | Ejecuta las pruebas ante cada cambio. |
 
