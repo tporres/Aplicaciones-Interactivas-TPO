@@ -7,6 +7,10 @@ const { createAuthRouters } = require("./routes/auth.routes");
 const { createCategoriesRouter } = require("./routes/categories.routes");
 const { createHealthRouter } = require("./routes/health.routes");
 const { createInquiriesRouter } = require("./routes/inquiries.routes");
+const {
+  createAdminProductsRouter,
+  createProductsRouter,
+} = require("./routes/products.routes");
 const { createStoreRouter } = require("./routes/store.routes");
 const { errorHandler } = require("./middlewares/error.middleware");
 const { notFoundHandler } = require("./middlewares/not-found.middleware");
@@ -45,6 +49,17 @@ function createApp(dependencies = {}) {
   app.use(
     "/api/v1/inquiries",
     createInquiriesRouter({ database: appDatabase, authenticate }),
+  );
+  app.use(
+    "/api/v1/products",
+    createProductsRouter({ database: appDatabase }),
+  );
+  app.use(
+    "/api/v1/admin/products",
+    createAdminProductsRouter({
+      database: appDatabase,
+      authenticate,
+    }),
   );
 
   app.use(notFoundHandler);

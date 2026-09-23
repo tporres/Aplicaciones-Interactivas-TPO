@@ -55,7 +55,21 @@ function createCategoriesService(repository) {
     },
 
     async remove(id) {
-      const removed = await repository.remove(id);
+      let removed;
+
+      try {
+        removed = await repository.remove(id);
+      } catch (error) {
+        if (error.code === "23503") {
+          throw new AppError(
+            409,
+            "CATEGORY_IN_USE",
+            "Category cannot be deleted while it has products",
+          );
+        }
+
+        throw error;
+      }
 
       if (!removed) {
         throw categoryNotFound();
