@@ -165,6 +165,15 @@ describe("products API integration", { skip: !connectionString }, () => {
     );
     assert.equal(publicResponse.status, 404);
 
+    const adminGetResponse = await fetch(
+      `${baseUrl}/api/v1/admin/products/${productId}`,
+      { headers: { authorization: `Bearer ${token}` } },
+    );
+    assert.equal(adminGetResponse.status, 200);
+    const adminProduct = (await adminGetResponse.json()).data;
+    assert.equal(adminProduct.id, productId);
+    assert.equal(adminProduct.isActive, false);
+
     const adminListResponse = await fetch(
       `${baseUrl}/api/v1/admin/products?isActive=false`,
       { headers: { authorization: `Bearer ${token}` } },

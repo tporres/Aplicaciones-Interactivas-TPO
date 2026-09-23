@@ -198,6 +198,13 @@
           }
         },
         {
+          "name": "Consultar categoría",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/categories/{{categoryId}}"
+          }
+        },
+        {
           "name": "Modificar categoría",
           "request": {
             "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
@@ -253,6 +260,14 @@
               "raw": "{\n  \"categoryId\": {{categoryId}},\n  \"name\": \"GPU para videojuegos de Postman\",\n  \"description\": \"Producto para videojuegos creado desde Postman\",\n  \"imageUrl\": \"https://placehold.co/800x600?text=Postman+GPU\",\n  \"price\": 999999.99,\n  \"availability\": \"in_stock\",\n  \"isActive\": true\n}"
             },
             "url": "{{baseUrl}}/api/v1/admin/products"
+          }
+        },
+        {
+          "name": "Consultar producto como administrador",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/products/{{productId}}"
           }
         },
         {
@@ -312,6 +327,14 @@
               "raw": "{\n  \"name\": \"Visitante de Postman\",\n  \"email\": \"visitante@example.com\",\n  \"phone\": null,\n  \"subject\": \"Consulta sobre disponibilidad\",\n  \"message\": \"¿Tienen disponibilidad inmediata?\"\n}"
             },
             "url": "{{baseUrl}}/api/v1/inquiries"
+          }
+        },
+        {
+          "name": "Consultar consulta",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/inquiries/{{inquiryId}}"
           }
         },
         {

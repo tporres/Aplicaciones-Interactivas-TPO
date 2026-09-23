@@ -55,6 +55,7 @@ FROM store_information;
 ### 4. Categoría
 
 - Ejecutar `Categorías / Crear categoría`. Guarda `categoryId`.
+- Ejecutar `Categorías / Consultar categoría`.
 - Ejecutar `Categorías / Listar categorías`.
 - Ejecutar `Categorías / Modificar categoría`.
 
@@ -67,6 +68,7 @@ SELECT * FROM categories WHERE id = <categoryId>;
 ### 5. Producto
 
 - Ejecutar `Administración de productos / Crear producto`. Guarda `productId`.
+- Ejecutar `Administración de productos / Consultar producto como administrador`.
 - Ejecutar `Productos públicos / Buscar y filtrar productos`.
 - Ejecutar `Administración de productos / Desactivar producto`.
 - Repetir `Productos públicos / Consultar producto`: debe responder `404` porque está desactivado.
@@ -86,6 +88,7 @@ Intentar eliminar su categoría mientras el producto existe debe responder `409 
 ### 6. Consulta de visitante
 
 - Ejecutar `Consultas / Enviar consulta` sin autenticación. Guarda `inquiryId`.
+- Ejecutar `Consultas / Consultar consulta` con autenticación.
 - Ejecutar `Consultas / Listar consultas pendientes` con autenticación.
 - Ejecutar `Consultas / Marcar consulta como respondida`.
 
