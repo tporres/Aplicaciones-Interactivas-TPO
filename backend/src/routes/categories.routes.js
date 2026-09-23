@@ -14,7 +14,7 @@ const {
   updateCategorySchema,
 } = require("../validators/category.schemas");
 
-function createCategoriesRouter({ database }) {
+function createCategoriesRouter({ database, authenticate }) {
   const router = express.Router();
   const repository = createCategoriesRepository(database);
   const service = createCategoriesService(repository);
@@ -28,16 +28,19 @@ function createCategoriesRouter({ database }) {
   );
   router.post(
     "/",
+    authenticate,
     validate({ body: createCategorySchema }),
     controller.create,
   );
   router.patch(
     "/:id",
+    authenticate,
     validate({ params: categoryIdSchema, body: updateCategorySchema }),
     controller.update,
   );
   router.delete(
     "/:id",
+    authenticate,
     validate({ params: categoryIdSchema }),
     controller.remove,
   );

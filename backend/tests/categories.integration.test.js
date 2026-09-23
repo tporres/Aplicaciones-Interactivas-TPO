@@ -15,6 +15,7 @@ describe(
     let baseUrl;
     let pool;
     let server;
+    let token;
 
     before(async () => {
       const databaseConfig = {
@@ -25,7 +26,9 @@ describe(
 
       await migrate();
       pool = createPool(databaseConfig);
-      await pool.query("TRUNCATE TABLE categories RESTART IDENTITY CASCADE");
+      await pool.query(
+        "TRUNCATE TABLE administrators, categories RESTART IDENTITY CASCADE",
+      );
 
       const database = {
         checkConnection: () => pool.query("SELECT 1"),
@@ -35,6 +38,20 @@ describe(
       await once(server, "listening");
       const address = server.address();
       baseUrl = `http://127.0.0.1:${address.port}`;
+
+      const registerResponse = await fetch(`${baseUrl}/api/v1/auth/register`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          firstName: "Category",
+          lastName: "Admin",
+          email: "categories@example.com",
+          phone: "+54 11 5555 0000",
+          password: "StrongPass123!",
+        }),
+      });
+      assert.equal(registerResponse.status, 201);
+      token = (await registerResponse.json()).data.token;
     });
 
     after(async () => {
@@ -59,7 +76,10 @@ describe(
     it("creates, lists, reads, updates, and deletes a category", async () => {
       const createResponse = await fetch(`${baseUrl}/api/v1/categories`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
         body: JSON.stringify({
           name: "Graphics Cards",
           description: "Dedicated GPUs",
@@ -89,7 +109,10 @@ describe(
         `${baseUrl}/api/v1/categories/${created.id}`,
         {
           method: "PATCH",
-          headers: { "content-type": "application/json" },
+          headers: {
+            authorization: `Bearer ${token}`,
+            "content-type": "application/json",
+          },
           body: JSON.stringify({ description: "High-performance GPUs" }),
         },
       );
@@ -100,7 +123,10 @@ describe(
 
       const deleteResponse = await fetch(
         `${baseUrl}/api/v1/categories/${created.id}`,
-        { method: "DELETE" },
+        {
+          method: "DELETE",
+          headers: { authorization: `Bearer ${token}` },
+        },
       );
       assert.equal(deleteResponse.status, 204);
 
@@ -119,7 +145,10 @@ describe(
     it("validates category input and rejects duplicate names", async () => {
       const invalidResponse = await fetch(`${baseUrl}/api/v1/categories`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
         body: JSON.stringify({ name: "  " }),
       });
 
@@ -132,14 +161,20 @@ describe(
 
       const firstResponse = await fetch(`${baseUrl}/api/v1/categories`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
         body: JSON.stringify({ name: "Processors" }),
       });
       assert.equal(firstResponse.status, 201);
 
       const duplicateResponse = await fetch(`${baseUrl}/api/v1/categories`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
         body: JSON.stringify({ name: "processors" }),
       });
       assert.equal(duplicateResponse.status, 409);
@@ -165,7 +200,10 @@ describe(
         `${baseUrl}/api/v1/categories/1`,
         {
           method: "PATCH",
-          headers: { "content-type": "application/json" },
+          headers: {
+            authorization: `Bearer ${token}`,
+            "content-type": "application/json",
+          },
           body: JSON.stringify({}),
         },
       );

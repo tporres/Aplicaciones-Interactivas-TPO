@@ -2,6 +2,10 @@ const DEFAULT_PORT = 3000;
 const DEFAULT_DATABASE_URL =
   "postgresql://postgres:postgres@localhost:5432/gamer_store";
 const DEFAULT_DATABASE_POOL_MAX = 10;
+const DEFAULT_JWT_EXPIRES_SECONDS = 8 * 60 * 60;
+const DEFAULT_PASSWORD_RESET_EXPIRES_MINUTES = 30;
+const DEFAULT_BCRYPT_ROUNDS = 10;
+const DEVELOPMENT_JWT_SECRET = "development-only-secret-change-before-production";
 
 function parsePort(value) {
   if (value === undefined || value === "") {
@@ -64,8 +68,26 @@ function parseDatabaseUrl(value) {
   return databaseUrl;
 }
 
+function parseJwtSecret(value, nodeEnv) {
+  if (value) {
+    if (value.length < 32) {
+      throw new Error("JWT_SECRET must contain at least 32 characters");
+    }
+
+    return value;
+  }
+
+  if (nodeEnv === "production") {
+    throw new Error("JWT_SECRET is required in production");
+  }
+
+  return DEVELOPMENT_JWT_SECRET;
+}
+
+const nodeEnv = process.env.NODE_ENV || "development";
+
 const config = Object.freeze({
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv,
   port: parsePort(process.env.PORT),
   database: Object.freeze({
     connectionString: parseDatabaseUrl(process.env.DATABASE_URL),
@@ -76,12 +98,31 @@ const config = Object.freeze({
       DEFAULT_DATABASE_POOL_MAX,
     ),
   }),
+  auth: Object.freeze({
+    jwtSecret: parseJwtSecret(process.env.JWT_SECRET, nodeEnv),
+    jwtExpiresSeconds: parsePositiveInteger(
+      process.env.JWT_EXPIRES_SECONDS,
+      "JWT_EXPIRES_SECONDS",
+      DEFAULT_JWT_EXPIRES_SECONDS,
+    ),
+    passwordResetExpiresMinutes: parsePositiveInteger(
+      process.env.PASSWORD_RESET_EXPIRES_MINUTES,
+      "PASSWORD_RESET_EXPIRES_MINUTES",
+      DEFAULT_PASSWORD_RESET_EXPIRES_MINUTES,
+    ),
+    bcryptRounds: parsePositiveInteger(
+      process.env.BCRYPT_ROUNDS,
+      "BCRYPT_ROUNDS",
+      DEFAULT_BCRYPT_ROUNDS,
+    ),
+  }),
 });
 
 module.exports = {
   config,
   parseBoolean,
   parseDatabaseUrl,
+  parseJwtSecret,
   parsePort,
   parsePositiveInteger,
 };

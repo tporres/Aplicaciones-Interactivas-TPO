@@ -22,8 +22,10 @@ La primera etapa incluye:
 - Migraciones SQL versionadas.
 - Verificación de disponibilidad de la base de datos.
 - CRUD completo de categorías con validaciones.
+- Registro, sesión, cierre de sesión y recuperación de contraseña.
+- Perfil protegido del administrador.
 
-Todavía no se implementaron autenticación, productos ni consultas.
+Todavía no se implementaron productos ni consultas.
 
 ## Stack
 
@@ -164,6 +166,20 @@ Ejemplo de creación:
   "description": "Dedicated GPUs"
 }
 ```
+
+### Autenticación y perfil
+
+| Método | Ruta | Acceso |
+| --- | --- | --- |
+| `POST` | `/api/v1/auth/register` | Público |
+| `POST` | `/api/v1/auth/login` | Público |
+| `POST` | `/api/v1/auth/logout` | Administrador |
+| `POST` | `/api/v1/auth/forgot-password` | Público |
+| `POST` | `/api/v1/auth/reset-password` | Público |
+| `GET` | `/api/v1/profile` | Administrador |
+| `PATCH` | `/api/v1/profile` | Administrador |
+
+Las rutas administrativas requieren `Authorization: Bearer <token>`. En desarrollo, la solicitud de recuperación devuelve el token en la respuesta para facilitar las pruebas con Postman. En producción deberá enviarse por correo.
 
 Ejemplo con `curl`:
 

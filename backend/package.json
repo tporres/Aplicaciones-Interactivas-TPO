@@ -9,7 +9,7 @@
     "db:check": "node --env-file-if-exists=.env src/db/check.js",
     "db:migrate": "node --env-file-if-exists=.env src/db/migrate.js",
     "test": "node --test",
-    "test:integration": "node --test tests/*.integration.test.js",
+    "test:integration": "node --test --test-concurrency=1 tests/*.integration.test.js",
     "test:watch": "node --test --watch"
   },
   "keywords": [],
@@ -17,7 +17,9 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.0",
     "zod": "^4.6.5"
   },
