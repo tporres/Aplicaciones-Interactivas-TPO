@@ -84,7 +84,11 @@ async function migrate() {
   }
 }
 
-migrate().catch((error) => {
-  console.error("Database migration failed.", error);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  migrate().catch((error) => {
+    console.error("Database migration failed.", error);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { migrate };

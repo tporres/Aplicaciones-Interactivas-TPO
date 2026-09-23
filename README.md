@@ -21,8 +21,9 @@ La primera etapa incluye:
 - Conexión a PostgreSQL mediante `pg`.
 - Migraciones SQL versionadas.
 - Verificación de disponibilidad de la base de datos.
+- CRUD completo de categorías con validaciones.
 
-Todavía no se implementaron autenticación, productos, categorías ni consultas.
+Todavía no se implementaron autenticación, productos ni consultas.
 
 ## Stack
 
@@ -145,6 +146,25 @@ GET /api/v1/health/ready
 
 Devuelve `200` cuando PostgreSQL está disponible y `503` cuando la API no puede conectarse a la base de datos.
 
+### Categorías
+
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| `GET` | `/api/v1/categories` | Lista las categorías. |
+| `GET` | `/api/v1/categories/:id` | Obtiene una categoría. |
+| `POST` | `/api/v1/categories` | Crea una categoría. |
+| `PATCH` | `/api/v1/categories/:id` | Modifica una categoría. |
+| `DELETE` | `/api/v1/categories/:id` | Elimina una categoría. |
+
+Ejemplo de creación:
+
+```json
+{
+  "name": "Graphics Cards",
+  "description": "Dedicated GPUs"
+}
+```
+
 Ejemplo con `curl`:
 
 ```bash
@@ -171,6 +191,17 @@ La suite actual verifica:
 - Respuesta JSON `404` para rutas inexistentes.
 - Respuesta JSON `400` para cuerpos JSON inválidos.
 - Validación de la variable de entorno `PORT`.
+- Validaciones y manejo de errores de categorías.
+
+Las pruebas de integración requieren una base de datos exclusiva para pruebas:
+
+```bash
+TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gamer_store_test \
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gamer_store_test \
+npm run test:integration
+```
+
+La suite trunca sus tablas y nunca debe apuntar a una base con datos importantes.
 
 ## Estructura actual
 
@@ -180,17 +211,29 @@ backend/
 │   ├── config/
 │   │   └── env.js
 │   ├── controllers/
+│   │   ├── categories.controller.js
 │   │   └── health.controller.js
 │   ├── db/
 │   │   ├── migrations/
+│   │   │   └── 001_create_categories.sql
 │   │   ├── check.js
 │   │   ├── database.js
 │   │   └── migrate.js
+│   ├── errors/
+│   │   └── app-error.js
 │   ├── middlewares/
 │   │   ├── error.middleware.js
-│   │   └── not-found.middleware.js
+│   │   ├── not-found.middleware.js
+│   │   └── validate.middleware.js
+│   ├── repositories/
+│   │   └── categories.repository.js
 │   ├── routes/
+│   │   ├── categories.routes.js
 │   │   └── health.routes.js
+│   ├── services/
+│   │   └── categories.service.js
+│   ├── validators/
+│   │   └── category.schemas.js
 │   ├── app.js
 │   └── server.js
 ├── tests/
@@ -210,14 +253,13 @@ backend/
 | `npm run db:check` | Verifica la conexión a PostgreSQL. |
 | `npm run db:migrate` | Aplica migraciones SQL pendientes. |
 | `npm test` | Ejecuta las pruebas una vez. |
+| `npm run test:integration` | Ejecuta pruebas contra PostgreSQL. |
 | `npm run test:watch` | Ejecuta las pruebas ante cada cambio. |
 
 ## Próximas etapas
 
-1. Configurar PostgreSQL y la conexión desde Node.js.
-2. Implementar categorías.
-3. Implementar productos, búsqueda y filtros.
-4. Implementar información institucional.
-5. Implementar consultas de contacto.
-6. Implementar registro, autenticación, recuperación de contraseña y perfil.
-7. Cargar al menos 20 productos y completar la documentación técnica.
+1. Implementar productos, búsqueda y filtros.
+2. Implementar información institucional.
+3. Implementar consultas de contacto.
+4. Implementar registro, autenticación, recuperación de contraseña y perfil.
+5. Cargar al menos 20 productos y completar la documentación técnica.

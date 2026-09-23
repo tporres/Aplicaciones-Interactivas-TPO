@@ -9,6 +9,7 @@
     "db:check": "node --env-file-if-exists=.env src/db/check.js",
     "db:migrate": "node --env-file-if-exists=.env src/db/migrate.js",
     "test": "node --test",
+    "test:integration": "node --test tests/*.integration.test.js",
     "test:watch": "node --test --watch"
   },
   "keywords": [],

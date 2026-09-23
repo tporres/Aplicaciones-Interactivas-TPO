@@ -24,12 +24,13 @@ function errorHandler(error, _request, response, next) {
     console.error(error);
   }
 
-  return response.status(statusCode).json({
-    error: {
-      code,
-      message,
-    },
-  });
+  const errorBody = { code, message };
+
+  if (error.details !== undefined) {
+    errorBody.details = error.details;
+  }
+
+  return response.status(statusCode).json({ error: errorBody });
 }
 
 module.exports = { errorHandler };
