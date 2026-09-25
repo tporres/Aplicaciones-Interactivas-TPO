@@ -1,6 +1,6 @@
 # Aplicaciones Interactivas - TPO
 
-API REST para una plataforma promocional de componentes para videojuegos, desarrollada como Trabajo Práctico Obligatorio de Aplicaciones Interactivas.
+API REST para una plataforma promocional de componentes para PC, desarrollada como Trabajo Práctico Obligatorio de Aplicaciones Interactivas.
 
 La [consigna del TPO](./TPO%20Segundo%20Cuatrimestre%202026.pdf) es la fuente de verdad. Este repositorio implementa únicamente el servidor; no incluye interfaz web, carrito, pagos ni envíos.
 
