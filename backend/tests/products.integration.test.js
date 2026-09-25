@@ -223,5 +223,17 @@ describe("products API integration", { skip: !connectionString }, () => {
     );
     assert.equal(publicResponse.status, 200);
     assert.equal((await publicResponse.json()).meta.total, 20);
+
+    const searchResponse = await fetch(
+      `${baseUrl}/api/v1/products?q=videojuegos&page=1&limit=100`,
+    );
+    assert.equal(searchResponse.status, 200);
+    const searchResult = await searchResponse.json();
+    assert.equal(searchResult.meta.total, 20);
+    assert.ok(
+      searchResult.data.every((product) =>
+        product.description.includes("videojuegos"),
+      ),
+    );
   });
 });

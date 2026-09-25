@@ -75,12 +75,13 @@ async function seed() {
             is_active
           )
           VALUES ($1, $2, $3, $4, $5, $6, true)
-          ON CONFLICT DO NOTHING
+          ON CONFLICT (lower(name)) DO UPDATE
+          SET description = EXCLUDED.description
         `,
         [
           categoryId,
           name,
-          `${name} for gaming PC builds.`,
+          `${name}, componente para armar una PC para videojuegos.`,
           imageUrlFor(name),
           price,
           availability,
